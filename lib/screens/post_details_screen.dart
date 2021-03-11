@@ -6,8 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class PostDetailsScreen extends StatelessWidget {
   static const routeName = 'postDetails';
   final String title = 'Wasteagram';
-
-  DocumentSnapshot postInfo;
+  final DocumentSnapshot postInfo;
 
   PostDetailsScreen({Key key, this.postInfo}) : super(key: key);
 

@@ -1,8 +1,13 @@
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:wasteagram/screens/post_details_screen.dart';
 import '../models/post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'new_post_screen.dart';
+import '../models/image.dart';
 
 class ListScreen extends StatefulWidget {
 
@@ -14,7 +19,7 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
-
+  // **MOCK DATA**
   // List<Post> _posts = [
   //   Post(
   //     date: DateTime(1989, 11, 9), 
@@ -39,9 +44,10 @@ class _ListScreenState extends State<ListScreen> {
   //     ),
   // ];
 
+ ImageInformation imageInfo = ImageInformation();
+
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
     DateTime date = document['date'].toDate();
-
     return ListTile(
       title: Row(
         children: [
@@ -64,9 +70,13 @@ class _ListScreenState extends State<ListScreen> {
     );
   }
 
+  bool isLoading;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    if(isLoading == true)
+      return Center(child: CircularProgressIndicator());
+    else return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -86,10 +96,42 @@ class _ListScreenState extends State<ListScreen> {
         }
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        tooltip: 'View Post Details',
+        onPressed: () async {
+          // Go to select picture gallery
+          final _picker = ImagePicker();
+          PickedFile image = await _picker.getImage(source: ImageSource.gallery);
+
+          setState(() {
+            isLoading = true; //add this line
+          });
+
+          Reference storageReference = FirebaseStorage.instance.ref().child(DateTime.now().toString());
+          await storageReference.putFile(File(image.path));
+
+          final url = await storageReference.getDownloadURL();
+          final _image = File(image.path);
+          print(url);   
+
+          imageInfo.url = url;
+          imageInfo.imageFile = _image;
+          
+          setState(() {
+            isLoading = false; //add this line
+          });
+
+          Navigator.push(
+            context, MaterialPageRoute(
+              builder: (context) => NewPostScreen(),
+              settings: RouteSettings(
+                            arguments: imageInfo,
+                          ),
+            ));       
+          
+        },
+        tooltip: 'Add New Post',
         child: Icon(Icons.camera_alt),
       ), 
+      
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,// This trailing comma makes auto-formatting nicer for build methods.
     );
   }
@@ -101,3 +143,15 @@ void pushViewPostDetails(BuildContext context, DocumentSnapshot postInfo) {
       builder: (context) => PostDetailsScreen(postInfo: postInfo)
     ));
 }
+
+void pushNewPost(BuildContext context) {
+  
+  Navigator.push(
+    context, MaterialPageRoute(
+      builder: (context) => NewPostScreen(),
+      settings: RouteSettings(
+                    
+                  ),
+    ));
+}
+

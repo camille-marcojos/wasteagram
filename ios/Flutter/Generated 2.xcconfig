@@ -1,0 +1,12 @@
+// This is a generated file; do not edit or check into version control.
+FLUTTER_ROOT=/Users/camillemarcojos/flutter
+FLUTTER_APPLICATION_PATH=/Users/camillemarcojos/Desktop/School Folders/CS492 Mobile Dev/Project5/wasteagram
+FLUTTER_TARGET=/Users/camillemarcojos/Desktop/School Folders/CS492 Mobile Dev/Project5/wasteagram/lib/main.dart
+FLUTTER_BUILD_DIR=build
+SYMROOT=${SOURCE_ROOT}/../build/ios
+FLUTTER_BUILD_NAME=1.0.0
+FLUTTER_BUILD_NUMBER=1
+DART_OBFUSCATION=false
+TRACK_WIDGET_CREATION=true
+TREE_SHAKE_ICONS=false
+PACKAGE_CONFIG=/Users/camillemarcojos/Desktop/School Folders/CS492 Mobile Dev/Project5/wasteagram/.dart_tool/package_config.json

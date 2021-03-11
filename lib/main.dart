@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:wasteagram/screens/post_details_screen.dart';
 import 'models/post.dart';
 import 'screens/list_screen.dart';
+import 'screens/new_post_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
   static final routes = {
     ListScreen.routeName: (context) => ListScreen(),
     PostDetailsScreen.routeName: (context) => PostDetailsScreen(),
+    NewPostScreen.routeName: (context) => NewPostScreen()
   };
 
   @override
