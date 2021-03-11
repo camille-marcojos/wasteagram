@@ -44,7 +44,6 @@ class _ListScreenState extends State<ListScreen> {
   //     ),
   // ];
 
- ImageInformation imageInfo = ImageInformation();
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
     DateTime date = document['date'].toDate();
@@ -70,13 +69,9 @@ class _ListScreenState extends State<ListScreen> {
     );
   }
 
-  bool isLoading;
-
   @override
   Widget build(BuildContext context) {
-    if(isLoading == true)
-      return Center(child: CircularProgressIndicator());
-    else return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -96,42 +91,13 @@ class _ListScreenState extends State<ListScreen> {
         }
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
+        onPressed: () {
           // Go to select picture gallery
-          final _picker = ImagePicker();
-          PickedFile image = await _picker.getImage(source: ImageSource.gallery);
-
-          // setState(() {
-          //   isLoading = true; //add this line
-          // });
-
-          Reference storageReference = FirebaseStorage.instance.ref().child(DateTime.now().toString());
-          await storageReference.putFile(File(image.path));
-
-          final url = await storageReference.getDownloadURL();
-          final _image = File(image.path);
-          print(url);   
-
-          imageInfo.url = url;
-          imageInfo.imageFile = _image;
-          
-          setState(() {
-            isLoading = false; //add this line
-            Navigator.push(
-              context, MaterialPageRoute(
-                builder: (context) => NewPostScreen(),
-                settings: RouteSettings(
-                              arguments: imageInfo,
-                            ),
-              ));       
-          });
-
-          
+          pushNewPost(context);   
         },
         tooltip: 'Add New Post',
         child: Icon(Icons.camera_alt),
       ), 
-      
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,// This trailing comma makes auto-formatting nicer for build methods.
     );
   }
@@ -146,12 +112,6 @@ void pushViewPostDetails(BuildContext context, DocumentSnapshot postInfo) {
 
 void pushNewPost(BuildContext context) {
   
-  Navigator.push(
-    context, MaterialPageRoute(
-      builder: (context) => NewPostScreen(),
-      settings: RouteSettings(
-                    
-                  ),
-    ));
+  Navigator.of(context).pushNamed(NewPostScreen.routeName);
 }
 

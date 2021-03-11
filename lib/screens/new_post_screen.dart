@@ -18,24 +18,37 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   final String title = 'New Post';
   final formKey = GlobalKey<FormState>();
+  ImageInformation imageInfo = ImageInformation();
+
+  Future<ImageInformation> getImage() async {
+    final _picker = ImagePicker();
+    PickedFile image = await _picker.getImage(source: ImageSource.gallery);
+
+    Reference storageReference = FirebaseStorage.instance.ref().child(DateTime.now().toString());
+    await storageReference.putFile(File(image.path));
+
+    final url = await storageReference.getDownloadURL();
+    final _image = File(image.path);
+    print(url);   
+
+    imageInfo.url = url;
+    imageInfo.imageFile = _image;
+    return imageInfo;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final ImageInformation image = ModalRoute.of(context).settings.arguments;
-    if(image.url == null){
-      print('image url is null');
-      return Center(child: CircularProgressIndicator());
-    }
-    else{
       return Scaffold(
-        appBar: AppBar(title: Text(title)),
-        body: Center(
-          child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.file(image.imageFile),
-            SizedBox(height: 40),
-            Row(
+            appBar: AppBar(title: Text(title)),
+            body: FutureBuilder(
+              future: getImage(),
+              builder: (context, AsyncSnapshot<ImageInformation> snapshot) {
+              List<Widget> children;
+              if (snapshot.hasData) {
+                children = <Widget>[
+                  Image.file(snapshot.data.imageFile),
+                  SizedBox(height: 40),
+              Row(
               children: [
                 Expanded(
                   child: Form(
@@ -70,7 +83,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           onPressed: (){
                             if(formKey.currentState.validate()){
                               formKey.currentState.save();
-                              //Navigator.of(context).pop();
+                              Navigator.of(context).pop();
                             }
                           },
                           child: Text('Save Entry')
@@ -80,20 +93,44 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   ),
                 )
             ],)
-          ]
-          ),
-        ),
+          ];
+              } else if (snapshot.hasError) {
+                children = <Widget>[
+                  Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 60,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text('Error: ${snapshot.error}'),
+                  )
+                ];
+              } else {
+                children = <Widget>[
+                  SizedBox(
+                    child: CircularProgressIndicator(),
+                    width: 60,
+                    height: 60,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Text('Awaiting result...'),
+                  )
+                ];
+              }
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: children,
+                )
+              );
+            }),
       );
-    }
   }
 }
 
-// Widget showImage(BuildContext context, File image){
-
-//   if(image != null)
-//     return Image.file(File(image.path));
-//   else {
-//     print('No image selected.');
-//     return Center(child: CircularProgressIndicator());
-//   }
-// }
+List<Widget> newPostForm = [
+  
+];
