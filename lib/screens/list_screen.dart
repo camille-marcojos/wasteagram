@@ -101,9 +101,9 @@ class _ListScreenState extends State<ListScreen> {
           final _picker = ImagePicker();
           PickedFile image = await _picker.getImage(source: ImageSource.gallery);
 
-          setState(() {
-            isLoading = true; //add this line
-          });
+          // setState(() {
+          //   isLoading = true; //add this line
+          // });
 
           Reference storageReference = FirebaseStorage.instance.ref().child(DateTime.now().toString());
           await storageReference.putFile(File(image.path));
@@ -117,15 +117,15 @@ class _ListScreenState extends State<ListScreen> {
           
           setState(() {
             isLoading = false; //add this line
+            Navigator.push(
+              context, MaterialPageRoute(
+                builder: (context) => NewPostScreen(),
+                settings: RouteSettings(
+                              arguments: imageInfo,
+                            ),
+              ));       
           });
 
-          Navigator.push(
-            context, MaterialPageRoute(
-              builder: (context) => NewPostScreen(),
-              settings: RouteSettings(
-                            arguments: imageInfo,
-                          ),
-            ));       
           
         },
         tooltip: 'Add New Post',
