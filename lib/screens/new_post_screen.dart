@@ -4,7 +4,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:location/location.dart';
 import '../models/image.dart';
+import '../models/post.dart';
 
 
 class NewPostScreen extends StatefulWidget {
@@ -19,6 +21,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final String title = 'New Post';
   final formKey = GlobalKey<FormState>();
   ImageInformation imageInfo = ImageInformation();
+  final post = Post();
+  LocationData locationData;
+  var locationService = Location();
 
   Future<ImageInformation> getImage() async {
     final _picker = ImagePicker();
@@ -34,6 +39,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
     imageInfo.url = url;
     imageInfo.imageFile = _image;
     return imageInfo;
+
+    
   }
 
   @override
@@ -67,8 +74,15 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 hintStyle: TextStyle(fontSize: 20.0),
                                 border: UnderlineInputBorder(),
                                 ),
-                              onSaved: (value) {
+                              onSaved: (value) async {
                                 // Save value  to some object
+                                post.quantity = int.parse(value);
+                                post.imageURL = snapshot.data.url;
+                                post.date = DateTime.now();
+                                locationData = await retrieveLocation(locationService, locationData, post);
+                                post.latitude = locationData.latitude;
+                                post.longitude = locationData.longitude;
+                                print(post);
                               },
                               validator: (value){
                                 if(value.isEmpty){
@@ -95,17 +109,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
             ],)
           ];
               } else if (snapshot.hasError) {
-                children = <Widget>[
-                  Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 60,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Text('Error: ${snapshot.error}'),
-                  )
-                ];
+                children = <Widget>[].where((child) => child != null).toList(); 
+                Future.microtask(() => Navigator.pop(context));
               } else {
                 children = <Widget>[
                   SizedBox(
@@ -131,6 +136,32 @@ class _NewPostScreenState extends State<NewPostScreen> {
   }
 }
 
-List<Widget> newPostForm = [
-  
-];
+Future<LocationData> retrieveLocation(Location locationService, LocationData locationData, Post post) async {
+    // In order to request location, you should always check manually Location Service status and Permission status
+    try {
+      var _serviceEnabled = await locationService.serviceEnabled();
+      if(!_serviceEnabled) {
+        _serviceEnabled = await locationService.requestService();
+        if(!_serviceEnabled) {
+          print('Failed to enabled service. Returning.');
+          return null;
+      }
+      }
+
+      var _permissionGranted = await locationService.hasPermission();
+      if(_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await locationService.requestPermission();
+        if(_permissionGranted != PermissionStatus.granted) {
+          print('Location service permission not granted. Returning');
+        }
+      }
+
+      locationData = await locationService.getLocation();
+    } on PlatformException catch (e) {
+      print('Error: ${e.toString()}, code: ${e.code}');
+      locationData = null;
+    }
+
+    locationData = await locationService.getLocation();
+    return locationData;
+}

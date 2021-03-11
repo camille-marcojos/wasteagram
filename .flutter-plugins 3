@@ -1,0 +1,16 @@
+# This is a generated file; do not edit or check into version control.
+cloud_firestore=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-1.0.1/
+cloud_firestore_web=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore_web-1.0.1/
+firebase_core=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-1.0.1/
+firebase_core_web=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core_web-1.0.1/
+firebase_storage=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage-8.0.0/
+firebase_storage_web=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage_web-1.0.1/
+flutter_plugin_android_lifecycle=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-2.0.0/
+image_picker=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.7.2+1/
+location=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/location-4.1.1/
+location_web=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/location_web-3.0.0/
+path_provider=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-2.0.1/
+path_provider_linux=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_linux-2.0.0/
+path_provider_macos=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_macos-2.0.0/
+path_provider_windows=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_windows-2.0.0/
+sqflite=/Users/camillemarcojos/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-2.0.0+2/
