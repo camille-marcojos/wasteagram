@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -46,6 +47,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   @override
   Widget build(BuildContext context) {
       return Scaffold(
+        resizeToAvoidBottomInset: false,
             appBar: AppBar(title: Text(title)),
             body: FutureBuilder(
               future: getImage(),
@@ -53,76 +55,70 @@ class _NewPostScreenState extends State<NewPostScreen> {
               List<Widget> children;
               if (snapshot.hasData) {
                 children = <Widget>[
-                  Image.file(snapshot.data.imageFile),
-                  SizedBox(height: 40),
-              Row(
-              children: [
-                Expanded(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                          Padding(
-                            padding: EdgeInsets.all(10),
-                            child: TextFormField(
-                              autofocus: true,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
-                              textAlign: TextAlign.center,
-                              decoration: InputDecoration(
-                                hintText: 'Number of Wasted Items', 
-                                hintStyle: TextStyle(fontSize: 20.0),
-                                border: UnderlineInputBorder(),
-                                ),
-                              onSaved: (value) async {
-                                // Save value  to some object
-                                post.quantity = int.parse(value);
-                                post.imageURL = snapshot.data.url;
-                                post.date = DateTime.now();
-                                locationData = await retrieveLocation(locationService, locationData, post);
-                                post.latitude = locationData.latitude;
-                                post.longitude = locationData.longitude;
-                                print(post);
-                              },
-                              validator: (value){
-                                if(value.isEmpty){
-                                  return 'Please enter a number.';
-                                }
-                                return null;
-                              }
-                            ),
-                          ),
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: (){
-                            if(formKey.currentState.validate()){
-                              formKey.currentState.save();
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          child: Text('Save Entry')
-                        )
-                      ],
+                  Container(
+                    height: 300,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: NetworkImage(snapshot.data.url), fit: BoxFit.cover),
                     ),
                   ),
-                )
-            ],)
-          ];
+                  //Image.file(snapshot.data.imageFile),
+                  SizedBox(height: 40),
+                  Row(
+                  children: [
+                    Expanded(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          children: [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                  left: 8,
+                                  right: 8,
+                                  bottom: MediaQuery.of(context).viewInsets.bottom),
+                                  child:
+                                   TextFormField(
+                                      style: TextStyle(fontSize: 25),
+                                      autofocus: true,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
+                                      textAlign: TextAlign.center,
+                                      decoration: InputDecoration(
+                                        hintText: 'Number of Wasted Items', 
+                                        hintStyle: TextStyle(fontSize: 20.0),
+                                        border: UnderlineInputBorder(),
+                                        ),
+                                      onSaved: (value) async {
+                                        // Save value  to some object
+                                        post.quantity = int.parse(value);
+                                        post.imageURL = snapshot.data.url;
+                                        post.date = DateTime.now();
+                                        locationData = await retrieveLocation(locationService, locationData, post);
+                                        post.latitude = locationData.latitude;
+                                        post.longitude = locationData.longitude;
+                                        FirebaseFirestore.instance.collection('post').add(post.toJson());
+                                        //print(post);
+                                      },
+                                      validator: (value){
+                                        if(value.isEmpty){
+                                          return 'Please enter a number.';
+                                        }
+                                        return null;
+                                      }
+                                    ),
+                                ),
+                          ],
+                        ),
+                      ),
+                    ),],
+                  ),
+              ];
               } else if (snapshot.hasError) {
                 children = <Widget>[].where((child) => child != null).toList(); 
                 Future.microtask(() => Navigator.pop(context));
               } else {
-                children = <Widget>[
-                  SizedBox(
-                    child: CircularProgressIndicator(),
-                    width: 60,
-                    height: 60,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Text('Awaiting result...'),
-                  )
-                ];
+                children = [CircularProgressIndicator(),];
               }
               return Center(
                 child: Column(
@@ -132,36 +128,52 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 )
               );
             }),
+            bottomSheet: InkWell(
+                  onTap:(){
+                      if(formKey.currentState.validate()){
+                        formKey.currentState.save();
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  child: Container(
+                    padding: EdgeInsets.all(25),
+                    color: Colors.blue,
+                    child: Row(children: [Expanded(child: Icon(Icons.cloud_upload, size: 70))]),
+            ),
+          ),
       );
   }
 }
 
-Future<LocationData> retrieveLocation(Location locationService, LocationData locationData, Post post) async {
-    // In order to request location, you should always check manually Location Service status and Permission status
-    try {
-      var _serviceEnabled = await locationService.serviceEnabled();
-      if(!_serviceEnabled) {
-        _serviceEnabled = await locationService.requestService();
-        if(!_serviceEnabled) {
-          print('Failed to enabled service. Returning.');
-          return null;
-      }
-      }
 
-      var _permissionGranted = await locationService.hasPermission();
-      if(_permissionGranted == PermissionStatus.denied) {
-        _permissionGranted = await locationService.requestPermission();
-        if(_permissionGranted != PermissionStatus.granted) {
-          print('Location service permission not granted. Returning');
+  Future<LocationData> retrieveLocation(Location locationService, LocationData locationData, Post post) async {
+      // In order to request location, you should always check manually Location Service status and Permission status
+      try {
+        var _serviceEnabled = await locationService.serviceEnabled();
+        if(!_serviceEnabled) {
+          _serviceEnabled = await locationService.requestService();
+          if(!_serviceEnabled) {
+            print('Failed to enabled service. Returning.');
+            return null;
         }
+        }
+
+        var _permissionGranted = await locationService.hasPermission();
+        if(_permissionGranted == PermissionStatus.denied) {
+          _permissionGranted = await locationService.requestPermission();
+          if(_permissionGranted != PermissionStatus.granted) {
+            print('Location service permission not granted. Returning');
+          }
+        }
+
+        locationData = await locationService.getLocation();
+      } on PlatformException catch (e) {
+        print('Error: ${e.toString()}, code: ${e.code}');
+        locationData = null;
       }
 
       locationData = await locationService.getLocation();
-    } on PlatformException catch (e) {
-      print('Error: ${e.toString()}, code: ${e.code}');
-      locationData = null;
-    }
+      return locationData;
 
-    locationData = await locationService.getLocation();
-    return locationData;
-}
+  }
+

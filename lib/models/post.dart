@@ -13,4 +13,13 @@ class Post {
     return 'Post: date: ${date}, url: ${imageURL}, quantity: ${quantity}, lat: ${latitude}, lon: ${longitude}';
   }
 
+  Map<String, dynamic> toJson() =>
+  {
+    'date': this.date,
+    'imageURL': this.imageURL,
+    'latitude': this.latitude,
+    'longitude': this.longitude,
+    'quantity': this.quantity,
+  };
+
 }

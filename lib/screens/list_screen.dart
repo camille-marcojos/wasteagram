@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'new_post_screen.dart';
 import '../models/image.dart';
 
+
 class ListScreen extends StatefulWidget {
 
   final String title = 'Wasteagram';
@@ -19,31 +20,6 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
-  // **MOCK DATA**
-  // List<Post> _posts = [
-  //   Post(
-  //     date: DateTime(1989, 11, 9), 
-  //     imageURL: 'http//www.example1.com',
-  //     quantity: 3,
-  //     latitude: 34.15480876161727,
-  //     longitude: -118.12227740472635
-  //     ),
-  //   Post(
-  //     date: DateTime(1990, 1, 9), 
-  //     imageURL: 'http//www.example2.com',
-  //     quantity: 5,
-  //     latitude: 50.15480876161727,
-  //     longitude: -100.12227740472635
-  //     ),
-  //   Post(
-  //     date: DateTime(1987, 06, 03), 
-  //     imageURL: 'http//www.example3.com',
-  //     quantity: 1,
-  //     latitude: 65.15480876161727,
-  //     longitude: -150.12227740472635
-  //     ),
-  // ];
-
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
     DateTime date = document['date'].toDate();
@@ -53,12 +29,11 @@ class _ListScreenState extends State<ListScreen> {
           Expanded(
             child: Text(
               DateFormat('EEEE, MMMM d, yyyy').format(date), style: TextStyle(fontSize: 20)
-              //DateFormat('EEEE, MMMM d, yyyy').format(document['date']), style: TextStyle(fontSize: 20)
             ),
           ),
           Container( 
             padding: const EdgeInsets.all(10.0),
-            child: Text(document['quantity'].toString(), style: Theme.of(context).textTheme.headline6
+            child: Text(document['quantity'].toString(), style: Theme.of(context).textTheme.headline5
             ),
           ),
         ],
@@ -76,11 +51,14 @@ class _ListScreenState extends State<ListScreen> {
         title: Text(widget.title),
       ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('post').snapshots(),
+        stream: FirebaseFirestore.instance
+        .collection('post')
+        .orderBy('date', descending: true)
+        .snapshots(),
         builder: (context, snapshot) {
           if(snapshot.hasData && snapshot.data.docs != null && snapshot.data.docs.length > 0){
             return ListView.builder(
-            itemExtent: 80,
+            itemExtent: 60,
             itemCount: snapshot.data.docs.length,
             itemBuilder: (context, index) =>
               _buildListItem(context, snapshot.data.docs[index])

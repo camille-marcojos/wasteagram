@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:transparent_image/transparent_image.dart';
 import '../models/post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -13,30 +14,58 @@ class PostDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DateTime date = postInfo['date'].toDate();
-
     return Scaffold(
       appBar: AppBar( 
         title: Text(title)
       ),
-      body: Center(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-            Text(
-              DateFormat('EEEE, MMMM d, yyyy').format(date), style: Theme.of(context).textTheme.headline6
-              //DateFormat('EEEE, MMMM d, yyyy').format(postInfo['date']), style: Theme.of(context).textTheme.headline6
-            ),
-            Text(
-              '${postInfo['imageURL']}', style: Theme.of(context).textTheme.headline6
-            ),
-            Text(
-              '${postInfo['quantity']}', style: Theme.of(context).textTheme.headline6
-            ),
-            Text(
-              '${postInfo['latitude'].toStringAsFixed(6)}, ${postInfo['longitude'].toStringAsFixed(6)}', style: TextStyle(fontSize: 12)
-            ),
-          ]
-        ),
-      )
+      body: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                    postDate(context, date),
+                    image(context),
+                    quantityAvailable(context, postInfo),
+                    location(context, postInfo),
+                  ]
+                ),
     );
   }
+
+
+  Widget location(BuildContext context, DocumentSnapshot postInfo){
+    return Text(
+      'Location: ${postInfo['latitude'].toStringAsFixed(6)}, ${postInfo['longitude'].toStringAsFixed(6)}', style: TextStyle(fontSize: 12)
+    );
+  }
+
+  Widget quantityAvailable(BuildContext context, DocumentSnapshot postInfo){
+    return Text(
+      '${postInfo['quantity']} items', style: Theme.of(context).textTheme.headline4
+    );
+  }
+
+  Widget postDate(BuildContext context, DateTime date){
+    return Text(
+        DateFormat('EEEE, MMMM d, yyyy').format(date), style: Theme.of(context).textTheme.headline5
+      );
+  }
+
+  Widget image(BuildContext context){
+    return Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            Center(child: CircularProgressIndicator()),
+            Center(
+              child: FadeInImage.memoryNetwork(
+                placeholder: kTransparentImage,
+                image: postInfo['imageURL'],
+              ),
+            ),
+          ],
+        );
+  }
+
+
 }
+
+
+
