@@ -5,26 +5,44 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
-import 'package:wasteagram/main.dart';
+import '../lib/models/post.dart';
+import 'package:test/test.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  group('Counter', () {
+    test('Post object should be converted to json', (){
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      final foodWastePost = Post(date: DateTime.parse('2020-03-20'),
+      imageURL: 'TEST',
+      latitude: 1.0,
+      longitude: 2.0,
+      quantity: 9);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      var jsonPost = foodWastePost.toJson();
+
+      expect(jsonPost['date'], foodWastePost.date);
+      expect(jsonPost['url'], foodWastePost.imageURL);
+      expect(jsonPost['latitude'], foodWastePost.latitude);
+      expect(jsonPost['longitude'], foodWastePost.longitude);
+      expect(jsonPost['quantity'], foodWastePost.quantity);
+    
+    });
+
+    test('Post object should be converted to string', (){
+
+      final foodWastePost = Post(date: DateTime.parse('2020-03-20'),
+      imageURL: 'TEST',
+      latitude: 1.0,
+      longitude: 2.0,
+      quantity: 9);
+
+      var stringPost = foodWastePost.toString();
+
+      expect('Post: date: 2020-03-20 00:00:00.000, url: TEST, quantity: 9, lat: 1.0, lon: 2.0', stringPost);
+
+      });
+
   });
+
 }

@@ -16,7 +16,7 @@ class Post {
   Map<String, dynamic> toJson() =>
   {
     'date': this.date,
-    'imageURL': this.imageURL,
+    'url': this.imageURL,
     'latitude': this.latitude,
     'longitude': this.longitude,
     'quantity': this.quantity,
